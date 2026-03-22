@@ -1,5 +1,7 @@
 A Streamlit app to explore, filter, and clean CSV datasets interactively.
 
+Link to deployed app: https://basic-csv-file-explorer.streamlit.app/
+
 Features
 - Upload CSV – Load any dataset for exploration.
 - Grouped Filters – Create multiple filter groups with AND/OR logic for numeric ranges or categorical values.
