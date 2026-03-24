@@ -3,6 +3,35 @@ import streamlit as st
 from functools import reduce
 import operator
 
+def get_filter_mask(df, f):
+    col = df[f["column"]]
+    if f["type"] == "range":
+        return (col >= f["min"]) & (col <= f["max"])
+    else:
+        return col.isin(f["values"])
+
+def get_group_mask(df, group):
+    if not group["filters"]:
+        return pd.Series([True]*len(df), index=df.index)
+    masks = [get_filter_mask(df, f) for f in group["filters"]]
+    if group["logic"] == "AND":
+        return reduce(operator.and_, masks)
+    else:
+        return reduce(operator.or_, masks)
+
+def apply_groups(df):
+    if not st.session_state.filter_groups:
+        return df.copy()
+
+    group_masks = [get_group_mask(df, g) for g in st.session_state.filter_groups]
+
+    if st.session_state.global_group_logic == "OR":
+        final_mask = reduce(operator.or_, group_masks)
+    else:
+        final_mask = reduce(operator.and_, group_masks)
+
+    return df[final_mask]
+
 def init_state():
     if "original_df" not in st.session_state:
         st.session_state.original_df = None
@@ -126,10 +155,9 @@ def show_filter_groups_ui():
 
 
 def main():
-    st.title("📊 Dataframe Explorer - Grouped Filters")
+    st.title("📊 Dataframe Explorer")
 
     init_state()
-
     uploaded_file = st.file_uploader("Upload CSV", type="csv")
     if uploaded_file:
         if (st.session_state.original_df is None 
@@ -140,8 +168,7 @@ def main():
             st.session_state.current_file = uploaded_file.name
             st.success("Dataset successfully loaded")
             st.session_state.filtered_df = df
-
-
+            st.rerun()
     if st.session_state.original_df is not None:
         df = st.session_state.original_df
 
@@ -155,6 +182,8 @@ def main():
         # Display
         st.subheader("📄 Filtered Data")
         st.dataframe(st.session_state.filtered_df)
+
+        
 
 if __name__ == "__main__":
     main()

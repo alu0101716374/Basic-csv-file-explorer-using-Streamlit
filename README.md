@@ -9,4 +9,6 @@ Features
 - Missing Data Handling – Detect missing entries, drop rows, fill numeric columns, and manually edit cells.
 - Interactive Display – See filtered data live and save manual edits.
 
+
 Will be modified and new features will be added shortly
+- Visualizations page, choose a chart type, pick column/s and swap between filtered and original dataframe
